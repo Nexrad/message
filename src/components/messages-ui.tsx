@@ -1,0 +1,15 @@
+import { Link } from '@tanstack/react-router';
+import { ChevronLeft, ChevronRight, MessageCircle, MoreVertical, Settings, UserRound, Users, X } from 'lucide-react';
+import { useState, type ReactNode } from 'react';
+import { Button } from '@/components/ui/button';
+import { useMessages } from '@/lib/messages';
+export function PhoneShell({children}:{children:ReactNode}) {return <main className="phone-app">{children}</main>;}
+export function Avatar() {return <span className="avatar" aria-hidden="true"><svg viewBox="0 0 32 32"><circle cx="16" cy="10" r="5"/><path d="M6 26c0-12 20-12 20 0-3 4-17 4-20 0"/></svg></span>;}
+export function Header({title,back='/',children}:{title:string;back?:'/'|'/settings'|'/demo-messages';children?:ReactNode}) {return <header className="screen-header"><Button asChild variant="tool" className="icon-control"><Link to={back} aria-label="Back"><ChevronLeft/></Link></Button><h1>{title}</h1>{children}</header>;}
+export function AppMenu() {const [open,setOpen]=useState(false);return <><Button variant="tool" className="icon-control" aria-label="More options" title="More options" onClick={()=>setOpen(!open)}><MoreVertical/></Button>{open&&<><div className="menu-shade" onClick={()=>setOpen(false)}/><div className="menu-popup"><Link to="/settings" onClick={()=>setOpen(false)}><Settings size={21}/>Settings</Link><Link to="/demo-messages" onClick={()=>setOpen(false)}><MessageCircle size={21}/>Demo Messages</Link><Button variant="tool" onClick={()=>setOpen(false)}><X size={21}/>Close</Button></div></>}</>;}
+export function BottomTabs({active}:{active:'conversations'|'contacts'}) {const {messages}=useMessages(); const unread=messages.filter(m=>m.unread).length; return <nav className="bottom-tabs" aria-label="Main navigation"><Link to="/" className={`bottom-tab ${active==='conversations'?'active':''}`}><span className="nav-icon"><MessageCircle fill={active==='conversations'?'currentColor':'none'}/>{unread>0&&<span className="unread-badge">{unread}</span>}</span>Conversations</Link><Link to="/contacts" className={`bottom-tab ${active==='contacts'?'active':''}`}><span className="nav-icon"><UserRound/></span>Contacts</Link></nav>;}
+export function StorageError() {const {error}=useMessages();return error?<p className="error-note px-6 py-3" role="alert">{error}</p>:null;}
+export function EmptyState({children}:{children:ReactNode}) {return <div className="empty-state">{children}</div>;}
+export function RichMessage({text,className=''}:{text:string;className?:string}) {return <p className={`message-text ${className}`}>{text.split(/(https?:\/\/[^\s]+)/g).map((part,i)=>/^https?:\/\//.test(part)?<a key={i} href={part} target="_blank" rel="noopener noreferrer">{part}</a>:part)}</p>;}
+export function metadata(title:string,description:string) {return {meta:[{title:`${title} — Messages`},{name:'description',content:description},{property:'og:title',content:`${title} — Messages`},{property:'og:description',content:description},{property:'og:type',content:'website'},{name:'twitter:card',content:'summary_large_image'}]};}
+export { ChevronRight, Users };

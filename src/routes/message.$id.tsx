@@ -1,0 +1,12 @@
+import { createFileRoute, Link } from '@tanstack/react-router';
+import { useState } from 'react';
+import { ChevronLeft, Copy, MoreVertical, Pencil, Share2, Trash2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { EmptyState, metadata, PhoneShell, RichMessage } from '@/components/messages-ui';
+import { phoneKey, useMessages } from '@/lib/messages';
+export const Route=createFileRoute('/message/$id')({head:()=>metadata('Message Details','Read, copy or share a full demo message.'),component:MessageDetail});
+function MessageDetail(){const {id}=Route.useParams();const {messages,remove}=useMessages();const m=messages.find(x=>x.id===id);const [notice,setNotice]=useState('');const [menu,setMenu]=useState(false);
+ async function copy(){if(!m)return;try{await navigator.clipboard.writeText(m.content);setNotice('Text copied');}catch{setNotice('Could not copy text.');}}
+ async function share(){if(!m)return;try{if(navigator.share)await navigator.share({text:m.content});else await copy();}catch{setNotice('Sharing cancelled.');}}
+ return <PhoneShell><header className="screen-header"><Button asChild variant="tool" className="icon-control">{m?<Link to="/conversation/$phone" params={{phone:phoneKey(m.phone)}} aria-label="Back"><ChevronLeft/></Link>:<Link to="/" aria-label="Back"><ChevronLeft/></Link>}</Button><div><h1>{m?.sender||'Message'}</h1>{m&&<div className="timestamp mt-2">{m.time}, {new Date(`${m.date}T12:00:00`).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</div>}</div></header><div className="app-content full-message">{m?<RichMessage text={m.content}/>:<EmptyState>Message not found</EmptyState>}</div>{notice&&<div role="status" className="text-muted-foreground px-6 py-2 text-sm">{notice}</div>}<div className="detail-actions"><Button variant="tool" className="detail-action" onClick={copy} disabled={!m}><Copy/>Copy text</Button><Button variant="tool" className="detail-action" onClick={share} disabled={!m}><Share2/>Share</Button><Button variant="tool" className="detail-action" onClick={()=>setMenu(!menu)} disabled={!m}><MoreVertical/>More</Button></div>{menu&&m&&<div className="settings-list"><Link to="/demo-messages/$id" params={{id:m.id}} className="settings-link"><Pencil/>Edit</Link><Button variant="tool" onClick={()=>{if(window.confirm('Delete this received message?')){remove(m.id);setMenu(false);}}}><Trash2/>Delete</Button></div>}</PhoneShell>;
+}

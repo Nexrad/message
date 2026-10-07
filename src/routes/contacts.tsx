@@ -1,0 +1,6 @@
+import { createFileRoute, Link } from '@tanstack/react-router';
+import { Phone } from 'lucide-react';
+import { AppMenu, Avatar, BottomTabs, EmptyState, metadata, PhoneShell } from '@/components/messages-ui';
+import { getConversations, useMessages } from '@/lib/messages';
+export const Route=createFileRoute('/contacts')({head:()=>metadata('Contacts','Senders from your locally stored demo messages.'),component:Contacts});
+function Contacts(){const {messages}=useMessages();const groups=getConversations(messages).sort((a,b)=>a.latest.sender.localeCompare(b.latest.sender));return <PhoneShell><header className="screen-header"><h1>Contacts</h1><AppMenu/></header><div className="app-content">{groups.length?<section className="conversation-list">{groups.map(g=><Link key={g.phone} to="/conversation/$phone" params={{phone:g.phone}} className="conversation-row"><Avatar/><div className="row-body"><div className="sender">{g.latest.sender||g.phone}</div><div className="message-preview mt-2">{g.phone}</div></div><Phone size={20} className="text-muted-foreground"/></Link>)}</section>:<EmptyState>No contacts</EmptyState>}</div><BottomTabs active="contacts"/></PhoneShell>;}
